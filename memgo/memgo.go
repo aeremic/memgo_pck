@@ -1,6 +1,9 @@
 package memgo
 
-import "net"
+import (
+	"bufio"
+	"net"
+)
 
 type Memgo struct {
 	addr *net.TCPAddr
@@ -41,18 +44,54 @@ func (m *Memgo) writeMsg(msg string) bool {
 	return true
 }
 
-func (m *Memgo) Dispose() bool {
-	msg := "STOP"
-	res := m.writeMsg(msg)
-
-	if res != false {
-		m.conn.Close()
+func (m *Memgo) receiveMsg() string {
+	buffer := bufio.NewReader(m.conn)
+	bytes, err := buffer.ReadBytes('\n')
+	if err != nil {
+		// TODO: Log
+		return ""
 	}
 
-	return res
+	return string(bytes)
+}
+
+func (m *Memgo) Dispose() bool {
+	msg := "STOP"
+	w := m.writeMsg(msg)
+
+	if w == false {
+		return false
+	}
+
+	receive := m.receiveMsg()
+	if receive != "Success\n" {
+		m.conn.Close()
+		return false
+	}
+
+	return true
 }
 
 func (m *Memgo) Set(key, value string) bool {
 	msg := "SET " + key + " " + value
-	return m.writeMsg(msg)
+
+	w := m.writeMsg(msg)
+	if w == true {
+		receive := m.receiveMsg()
+		return receive == "Success\n"
+	}
+
+	return false
+}
+
+func (m *Memgo) GetAll() string {
+	msg := "GETALL"
+
+	w := m.writeMsg(msg)
+	if w == true {
+		receive := m.receiveMsg()
+		return receive
+	}
+
+	return ""
 }
