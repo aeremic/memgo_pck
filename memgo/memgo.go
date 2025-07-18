@@ -5,6 +5,16 @@ import (
 	"net"
 )
 
+const (
+	STOP      = "STOP"
+	GET       = "GET"
+	GETALL    = "GETALL"
+	SET       = "SET"
+	DELETE    = "DELETE"
+	DELETEALL = "DELETEALL"
+	GETBYPATH = "GETBYPATH"
+)
+
 type Memgo struct {
 	addr *net.TCPAddr
 	conn *net.TCPConn
@@ -56,15 +66,15 @@ func (m *Memgo) receiveMsg() string {
 }
 
 func (m *Memgo) Dispose() bool {
-	msg := "STOP"
+	msg := STOP
 	w := m.writeMsg(msg)
 
 	if w == false {
 		return false
 	}
 
-	receive := m.receiveMsg()
-	if receive != "Success\n" {
+	r := m.receiveMsg()
+	if r != "Success\n" {
 		m.conn.Close()
 		return false
 	}
@@ -73,24 +83,24 @@ func (m *Memgo) Dispose() bool {
 }
 
 func (m *Memgo) Set(key, value string) bool {
-	msg := "SET " + key + " " + value
+	msg := SET + " " + key + " " + value
 
 	w := m.writeMsg(msg)
 	if w == true {
-		receive := m.receiveMsg()
-		return receive == "Success\n"
+		r := m.receiveMsg()
+		return r == "Success\n"
 	}
 
 	return false
 }
 
 func (m *Memgo) GetAll() string {
-	msg := "GETALL"
+	msg := GETALL
 
 	w := m.writeMsg(msg)
 	if w == true {
-		receive := m.receiveMsg()
-		return receive
+		r := m.receiveMsg()
+		return r
 	}
 
 	return ""
