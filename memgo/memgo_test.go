@@ -20,7 +20,7 @@ func dispose(t *testing.T, memgo *Memgo) {
 	}
 }
 
-func RunTests(t *testing.T) {
+func TestMemgoBasic(t *testing.T) {
 	// t.Skip("Skipping this test..")
 
 	memgo := setUp(t)
