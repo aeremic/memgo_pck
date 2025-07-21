@@ -24,10 +24,43 @@ func TestMemgoBasic(t *testing.T) {
 	// t.Skip("Skipping this test..")
 
 	memgo := setUp(t)
-	t.Run("TestProxyBasic", func(t *testing.T) {
+	t.Run("TestSet", func(t *testing.T) {
 		set := memgo.Set("keyTest", "valueTest")
 		if set != true {
 			t.Fatalf("set result invalid")
+		}
+	})
+	t.Run("TestGet", func(t *testing.T) {
+		set := memgo.Set("keyTest", "valueTest")
+		if set != true {
+			t.Fatalf("set result invalid")
+		}
+
+		get := memgo.Get("keyTest")
+		if get == "NOT_FOUND" {
+			t.Fatalf("get result invalid")
+		}
+	})
+	t.Run("Delete", func(t *testing.T) {
+		set := memgo.Set("keyTest", "valueTest")
+		if set != true {
+			t.Fatalf("set result invalid")
+		}
+
+		get := memgo.Delete("keyTest")
+		if get != true {
+			t.Fatalf("delete result invalid")
+		}
+	})
+	t.Run("DeleteAll", func(t *testing.T) {
+		set := memgo.Set("keyTest", "valueTest")
+		if set != true {
+			t.Fatalf("set result invalid")
+		}
+
+		get := memgo.DeleteAll()
+		if get != true {
+			t.Fatalf("deleteall result invalid")
 		}
 	})
 	t.Run("TestGetAll", func(t *testing.T) {
@@ -37,7 +70,7 @@ func TestMemgoBasic(t *testing.T) {
 		}
 
 		getall := memgo.GetAll()
-		if getall == "" {
+		if getall == "NOT_FOUND" {
 			t.Fatalf("getall result invalid")
 		}
 	})

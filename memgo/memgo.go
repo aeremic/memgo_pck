@@ -116,7 +116,7 @@ func (m *Memgo) DeleteAll() bool {
 }
 
 func (m *Memgo) Delete(key string) bool {
-	return m.sendCommand(DELETE) == SUCCESS+"\n"
+	return m.sendCommand(DELETE+" "+key) == SUCCESS+"\n"
 }
 
 func (m *Memgo) GetByPath(key, path string) string {
