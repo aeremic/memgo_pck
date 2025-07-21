@@ -15,6 +15,13 @@ const (
 	GETBYPATH = "GETBYPATH"
 )
 
+const (
+	EMPTY_KEY = "EMPTY_KEY"
+	NOT_FOUND = "NOT_FOUND"
+	EMPTY     = "EMPTY"
+	SUCCESS   = "SUCCESS"
+)
+
 type Memgo struct {
 	addr *net.TCPAddr
 	conn *net.TCPConn
@@ -65,6 +72,16 @@ func (m *Memgo) receiveMsg() string {
 	return string(bytes)
 }
 
+func (m *Memgo) sendCommand(msg string) string {
+	w := m.writeMsg(msg)
+	if w == true {
+		r := m.receiveMsg()
+		return r
+	}
+
+	return ""
+}
+
 func (m *Memgo) Dispose() bool {
 	msg := STOP
 	w := m.writeMsg(msg)
@@ -74,7 +91,7 @@ func (m *Memgo) Dispose() bool {
 	}
 
 	r := m.receiveMsg()
-	if r != "Success\n" {
+	if r != SUCCESS+"\n" {
 		m.conn.Close()
 		return false
 	}
@@ -83,25 +100,25 @@ func (m *Memgo) Dispose() bool {
 }
 
 func (m *Memgo) Set(key, value string) bool {
-	msg := SET + " " + key + " " + value
-
-	w := m.writeMsg(msg)
-	if w == true {
-		r := m.receiveMsg()
-		return r == "Success\n"
-	}
-
-	return false
+	return m.sendCommand(SET+" "+key+" "+value) == SUCCESS+"\n"
 }
 
 func (m *Memgo) GetAll() string {
-	msg := GETALL
+	return m.sendCommand(GETALL)
+}
 
-	w := m.writeMsg(msg)
-	if w == true {
-		r := m.receiveMsg()
-		return r
-	}
+func (m *Memgo) Get(key string) string {
+	return m.sendCommand(GET + " " + key)
+}
 
-	return ""
+func (m *Memgo) DeleteAll() bool {
+	return m.sendCommand(DELETEALL) == SUCCESS+"\n"
+}
+
+func (m *Memgo) Delete(key string) bool {
+	return m.sendCommand(DELETE) == SUCCESS+"\n"
+}
+
+func (m *Memgo) GetByPath(key, path string) string {
+	return m.sendCommand(GETBYPATH + " " + key + " " + path)
 }
